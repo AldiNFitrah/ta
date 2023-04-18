@@ -1,4 +1,5 @@
 import json
+import logging
 import requests
 
 from src.kafka.producer import KafkaProducer
@@ -40,7 +41,7 @@ def fetch_submissions():
     response = requests.get(FETCH_SUBMISSION_URL, params=DEFAULT_REQUEST_PARAMS)
 
     if not response.ok:
-        print(response.json())
+        logging.error(response.json())
         return
 
     response_json = response.json()
@@ -66,7 +67,7 @@ def fetch_comments():
     response = requests.get(FETCH_COMMENT_URL, params=DEFAULT_REQUEST_PARAMS)
 
     if not response.ok:
-        print(response.json())
+        logging.error(response.json())
         return
 
     response_json = response.json()
@@ -97,4 +98,4 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(e)
+        logging.error(e)

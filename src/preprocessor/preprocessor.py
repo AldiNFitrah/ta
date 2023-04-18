@@ -1,3 +1,5 @@
+import logging
+
 from typing import Dict
 
 from src.kafka.consumer import KafkaConsumer
@@ -37,7 +39,7 @@ def on_message(key: str, message: Dict):
 
 
 def on_error(error: str):
-    print(error)
+    logging.error(error)
 
 
 def main():

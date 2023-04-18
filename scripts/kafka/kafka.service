@@ -1,0 +1,14 @@
+[Unit]
+Description=Apache Kafka server (kraft mode)
+Documentation=http://kafka.apache.org/documentation.html
+
+[Service]
+Type=simple
+User=kafka
+Group=kafka
+ExecStart=/bin/sh -c '/home/aldi_naufal/kafka/bin/kafka-server-start.sh /home/aldi_naufal/kafka/config/kraft/server.properties --override node.id=%i'
+ExecStop=/home/aldi_naufal/kafka/bin/kafka-server-stop.sh
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target

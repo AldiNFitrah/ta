@@ -14,11 +14,11 @@ from src.social_media.enums import SocialMediaEnum
 from src.social_media.enums import SocialMediaPostEnum
 
 
-ONE_HOUR_AGO = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes=1)
+ONE_MINUTE_AGO = datetime.datetime.now(pytz.utc) - datetime.timedelta(minutes=1)
 TWEET_SEARCH_QUERIES = [
     "lang:id",
     "-is:retweet",
-    f"since:{ONE_HOUR_AGO.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+    f"since:{ONE_MINUTE_AGO.strftime('%Y-%m-%dT%H:%M:%SZ')}",
 ]
 
 TOPIC_NAME_TARGET_PUBLISH = "raw"
@@ -39,7 +39,10 @@ def fetch_tweets():
 
     tweets: List[sntwitter.Tweet] = sntwitter.TwitterSearchScraper(query).get_items()
     for i, tweet in enumerate(tweets, 1):
-        if i % 10000 == 0:
+        if tweet.date < ONE_MINUTE_AGO:
+            break
+
+        if i % 100 == 0:
             print(f"Processing {i} tweets")
 
             produce_to_kafka(messages)
@@ -82,8 +85,11 @@ def fetch_tweets2():
 
     tweets: List[sntwitter.Tweet] = sntwitter.TwitterSearchScraper(query).get_items()
     for i, tweet in enumerate(tweets, 1):
-        if tweet.date < ONE_HOUR_AGO:
+        if tweet.date < ONE_MINUTE_AGO:
             break
+
+        if i % 1000 == 0:
+            print(f"Processing {i} tweets")
 
         asyncio.run(produce_message_async(producer, tweet))
         # message = {
@@ -101,8 +107,8 @@ def fetch_tweets2():
 
 
 def main():
-    # fetch_tweets()
-    fetch_tweets2()
+    fetch_tweets()
+    # fetch_tweets2()
 
 
 if __name__ == "__main__":

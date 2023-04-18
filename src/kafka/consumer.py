@@ -1,14 +1,22 @@
+import logging
+import os
+
 from collections.abc import Callable
 from confluent_kafka import Consumer
 from confluent_kafka import KafkaError
 from confluent_kafka import Message
+from dotenv import load_dotenv
 from typing import Dict
 from typing import Optional
 
 from src.kafka.commons import deserialize_json
 
+load_dotenv()
 
-BOOTSTRAP_SERVER = "localhost:29092"
+
+BOOTSTRAP_SERVER = os.getenv("BOOTSTRAP_SERVER")
+if not BOOTSTRAP_SERVER:
+    raise Exception("BOOTSTRAP_SERVER env var is required")
 
 DEFAULT_CONFIG = {
     'bootstrap.servers': BOOTSTRAP_SERVER,
@@ -16,6 +24,9 @@ DEFAULT_CONFIG = {
         'auto.offset.reset': 'earliest', # if there's no initial offset, use earliest
     },
 }
+
+logging.debug(f"Consumer config: {DEFAULT_CONFIG}")
+print(f"Consumer config: {DEFAULT_CONFIG}")
 
 class KafkaConsumer:
 
