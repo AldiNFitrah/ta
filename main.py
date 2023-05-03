@@ -14,7 +14,7 @@ def main(request):
     logging.debug("Start scraping twitter")
 
     print("MASUK")
-    scrape_twitter()
+    scrape_reddit()
 
     return {"success": True}
 

@@ -8,6 +8,8 @@ from typing import Optional
 
 from src.kafka.commons import serialize_json
 
+from kafka import KafkaProducer as _KafkaProducer
+
 load_dotenv()
 
 
@@ -32,7 +34,8 @@ class KafkaProducer:
         value_serializer: Optional[Callable[[object], bytes]] = None,
     ):
         print("Create producer")
-        self.producer = Producer(DEFAULT_CONFIG)
+        # self.producer = Producer(DEFAULT_CONFIG)
+        self.producer = _KafkaProducer(bootstrap_servers=[BOOTSTRAP_SERVER])
         self.topic_name = topic_name
 
         self.key_serializer = key_serializer
@@ -53,14 +56,20 @@ class KafkaProducer:
     ):
         print(f"Produce message: key={key}, message={value}")
         try:
-            self.producer.produce(
+            # self.producer.produce(
+            #     topic=self.topic_name,
+            #     key=self.key_serializer(key),
+            #     value=self.value_serializer(value),
+            #     on_delivery=self.get_on_delivery_function(callback_function),
+            # )
+
+            # self.producer.flush()
+            self.producer.send(
                 topic=self.topic_name,
                 key=self.key_serializer(key),
                 value=self.value_serializer(value),
-                on_delivery=self.get_on_delivery_function(callback_function),
             )
-
-            self.producer.flush()
+            print(f"Finish producing message")
         except Exception as e:
             print(e)
 

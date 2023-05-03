@@ -5,7 +5,7 @@ import requests
 from src.kafka.producer import KafkaProducer
 from src.social_media.enums import SocialMediaEnum
 from src.social_media.enums import SocialMediaPostEnum
-
+from pprint import pprint
 
 REDDIT_BASE_URL = "https://reddit.com"
 BASE_URL = "https://api.pushshift.io/reddit/search"
@@ -15,7 +15,7 @@ FETCH_COMMENT_URL = f"{BASE_URL}/comment"
 SUBREDDIT = "subreddit"
 SUBREDDIT_NAME_INDONESIA = "indonesia"
 TIME_SINCE = "after"
-ONE_HOUR = "1h"
+ONE_HOUR = "48h"
 
 DEFAULT_REQUEST_PARAMS = {
     SUBREDDIT: SUBREDDIT_NAME_INDONESIA,
@@ -41,10 +41,13 @@ def fetch_submissions():
     response = requests.get(FETCH_SUBMISSION_URL, params=DEFAULT_REQUEST_PARAMS)
 
     if not response.ok:
+        print("subsmission error")
         logging.error(response.json())
         return
 
     response_json = response.json()
+    print("response submission:")
+    # pprint(response_json)
     data = response_json.get("data", [])
 
     messages = []
@@ -59,6 +62,8 @@ def fetch_submissions():
             "type": SocialMediaPostEnum.REDDIT_SUBMISSION,
             "extras": {},
         })
+
+    print(messages)
 
     produce_to_kafka(messages)
 
