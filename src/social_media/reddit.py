@@ -1,25 +1,35 @@
+import datetime
 import json
 import logging
+import os
+import pytz
 import requests
+import timeit
 
 from src.kafka.producer import KafkaProducer
 from src.social_media.enums import SocialMediaEnum
 from src.social_media.enums import SocialMediaPostEnum
-from pprint import pprint
+from src.utils import run_async
+
 
 REDDIT_BASE_URL = "https://reddit.com"
 BASE_URL = "https://api.pushshift.io/reddit/search"
 FETCH_SUBMISSION_URL = f"{BASE_URL}/submission"
 FETCH_COMMENT_URL = f"{BASE_URL}/comment"
 
+LOCAL_DB_FILE_NAME = "db/reddit_last_fetched_content_created_at_utc.json"
+
 SUBREDDIT = "subreddit"
+SIZE = "size"
+ORDER = "order"
+ORDER_ASCENDING = "asc"
 SUBREDDIT_NAME_INDONESIA = "indonesia"
 TIME_SINCE = "after"
-ONE_HOUR = "48h"
 
 DEFAULT_REQUEST_PARAMS = {
     SUBREDDIT: SUBREDDIT_NAME_INDONESIA,
-    TIME_SINCE: ONE_HOUR
+    ORDER: ORDER_ASCENDING,
+    SIZE: 500,
 }
 
 TOPIC_NAME_TARGET_PUBLISH = "raw"
@@ -31,30 +41,49 @@ def generate_message_key(key):
     return hex(hash(key))[2:]
 
 
+@run_async
 def produce_to_kafka(messages):
+    start_time = timeit.default_timer()
+
+    items = []
     for message in messages:
         key = generate_message_key(message.get("text"))
-        producer.produce_message(key, message)
+        items.append((key, message))
+
+    producer.produce_messages(items)
+
+    finish_time = timeit.default_timer()
+    logging.info("Time taken to produce %s messages: %s", len(messages), finish_time - start_time)
 
 
-def fetch_submissions():
-    response = requests.get(FETCH_SUBMISSION_URL, params=DEFAULT_REQUEST_PARAMS)
+@run_async
+def fetch_submissions(time_since, **kwargs):
+    start_time = timeit.default_timer()
+
+    params = {
+        **DEFAULT_REQUEST_PARAMS,
+        TIME_SINCE: time_since+1,
+        **kwargs,
+    }
+    response = requests.get(FETCH_SUBMISSION_URL, params=params)
 
     if not response.ok:
-        print("subsmission error")
-        logging.error(response.json())
+        logging.error("subsmission error. Response: %s", response.json())
         return
 
     response_json = response.json()
-    print("response submission:")
-    # pprint(response_json)
+    logging.debug("Submissions response: %s", response_json)
+
     data = response_json.get("data", [])
 
     messages = []
 
     for submission in data:
         messages.append({
-            "text": submission.get("text"),
+            "text": "[{title}] {body}".format(
+                title=submission.get("title"),
+                body=submission.get("selftext"),
+            ),
             "author": submission.get("author"),
             "link": f'{REDDIT_BASE_URL}{submission.get("permalink")}',
             "created_at": submission.get("utc_datetime_str"),
@@ -63,19 +92,41 @@ def fetch_submissions():
             "extras": {},
         })
 
-    print(messages)
+    logging.debug("Producing %d submissions to kafka", len(data))
+    logging.debug("Submissions: %s", messages)
 
     produce_to_kafka(messages)
 
+    logging.debug("Finished producing %d submissions to kafka", len(data))
 
-def fetch_comments():
-    response = requests.get(FETCH_COMMENT_URL, params=DEFAULT_REQUEST_PARAMS)
+    last_utc_time = time_since
+    if len(data) > 0:
+        last_utc_time = data[-1].get("created_utc", time_since)
+
+    update_last_fetched_content_created_at_utc(last_utc_time, "submission")
+
+    finish_time = timeit.default_timer()
+    logging.info("Time taken to process %s submissions: %s", len(data), finish_time - start_time)
+
+
+@run_async
+def fetch_comments(time_since, **kwargs):
+    start_time = timeit.default_timer()
+
+    params = {
+        **DEFAULT_REQUEST_PARAMS,
+        TIME_SINCE: time_since+1,
+        **kwargs,
+    }
+    response = requests.get(FETCH_COMMENT_URL, params=params)
 
     if not response.ok:
-        logging.error(response.json())
+        logging.error("subsmission error. Response: %s", response.json())
         return
 
     response_json = response.json()
+    logging.debug("Comments response: %s", response_json)
+
     data = response_json.get("data", [])
 
     messages = []
@@ -91,16 +142,68 @@ def fetch_comments():
             "extras": {},
         })
 
+    logging.debug("Producing %d comments to kafka", len(messages))
+    logging.debug("Comments: %s", messages)
+
     produce_to_kafka(messages)
 
+    logging.debug("Finished producing %d comments to kafka", len(messages))
 
+    last_utc_time = time_since
+    if len(data) > 0:
+        last_utc_time = data[-1].get("created_utc", time_since)
+
+    update_last_fetched_content_created_at_utc(last_utc_time, "comment")
+
+    finish_time = timeit.default_timer()
+    logging.info("Time taken to process %s comments: %s", len(data), finish_time - start_time)
+
+
+is_file_locked = False
+def lock_file():
+    global is_file_locked
+    is_file_locked = True
+
+def unlock_file():
+    global is_file_locked
+    is_file_locked = False
+
+def wait_until_file_unlocked():
+    while is_file_locked:
+        pass
+
+def get_last_fetched_content_created_at_utc():
+    if not os.path.exists(LOCAL_DB_FILE_NAME):
+        with open(LOCAL_DB_FILE_NAME, "w") as file:
+            pass
+
+    with open(LOCAL_DB_FILE_NAME, "r") as file:
+        try:
+            data = json.load(file)
+            return data
+
+        except Exception as e:
+            logging.warn(e)
+            return {}
+
+
+def update_last_fetched_content_created_at_utc(utc_time, content):
+    data = get_last_fetched_content_created_at_utc()
+    data[content] = utc_time
+
+    wait_until_file_unlocked()
+    lock_file()
+    with open(LOCAL_DB_FILE_NAME, "w") as file:
+        json.dump(data, file)
+
+    unlock_file()
+
+
+@run_async
 def main():
-    fetch_submissions()
-    fetch_comments()
+    data = get_last_fetched_content_created_at_utc()
+    last_fetched_submission_created_at_utc = data.get("submission", 0)
+    last_fetched_comment_created_at_utc = data.get("comment", 0)
 
-
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        logging.error(e)
+    fetch_submissions(last_fetched_submission_created_at_utc)
+    fetch_comments(last_fetched_comment_created_at_utc)
