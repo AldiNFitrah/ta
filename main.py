@@ -1,23 +1,33 @@
 import google.cloud.logging
 import logging
+import sys
 
-from src.social_media.reddit import main as scrape_reddit
-from src.social_media.twitter import main as scrape_twitter
-from src.social_media.mastodon import main as scrape_mastodon
 from src.preprocessor.preprocessor import main as preprocessor
 
 client = google.cloud.logging.Client()
 client.setup_logging()
+logging.root.setLevel(logging.DEBUG)
 
 
-def main(request):
-    logging.debug("Start scraping twitter")
+def main(command):
+    logging.info("Command: %s", command)
 
-    print("MASUK")
-    scrape_reddit()
+    function_map = {
+        "preprocess": preprocessor,
+    }
 
-    return {"success": True}
+    function = function_map.get(command, lambda: None)
+
+    try:
+        function()
+
+    except Exception as e:
+        logging.error(e)
 
 
 if __name__ == "__main__":
-    main(None)
+    if len(sys.argv) < 2:
+        logging.error("Need sys argument!")
+
+    else:
+        main(sys.argv[1])
