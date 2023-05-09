@@ -6,7 +6,7 @@ from src.preprocessor.preprocessor import main as preprocessor
 
 client = google.cloud.logging.Client()
 client.setup_logging()
-logging.root.setLevel(logging.DEBUG)
+# logging.root.setLevel(logging.DEBUG)
 
 
 def main(command):
