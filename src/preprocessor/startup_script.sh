@@ -17,4 +17,4 @@ sudo chown -R $USER:$USER ./
 pip3 install -r requirements.txt
 
 # Start application
-nohup python3 -m uvicorn src.server.main:app --host 0.0.0.0 &
+nohup python3 main.py preprocess

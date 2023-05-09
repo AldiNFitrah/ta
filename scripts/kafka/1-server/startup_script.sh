@@ -2,6 +2,7 @@
 
 echo "Installing java"
 
+rm -rf /var/lib/man-db/auto-update
 sudo apt-get -qq update
 sudo apt-get install -y default-jdk
 
