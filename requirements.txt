@@ -50,7 +50,6 @@ requests==2.30.0
 rsa==4.9
 six==1.16.0
 sniffio==1.3.0
-snscrape @ git+https://github.com/JustAnotherArchivist/snscrape.git@285d5874fc20a9d9463ed261f45c5f4118277d05
 soupsieve==2.4
 starlette==0.26.1
 tqdm==4.65.0
