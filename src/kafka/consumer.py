@@ -26,7 +26,7 @@ DEFAULT_CONFIG = {
 }
 
 logging.debug(f"Consumer config: {DEFAULT_CONFIG}")
-print(f"Consumer config: {DEFAULT_CONFIG}")
+
 
 class KafkaConsumer:
 
@@ -72,5 +72,6 @@ class KafkaConsumer:
                     self.value_deserializer(msg.value()),
                 )
 
-        except:
+        except Exception as e:
+            logging.error("Error: %s", e)
             self.consumer.close()
