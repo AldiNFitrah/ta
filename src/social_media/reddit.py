@@ -4,7 +4,6 @@ import logging
 import os
 import pytz
 import requests
-import timeit
 
 from src.kafka.producer import KafkaProducer
 from src.social_media.enums import SocialMediaEnum
@@ -43,7 +42,6 @@ def generate_message_key(key):
 
 @run_async
 def produce_to_kafka(messages):
-    start_time = timeit.default_timer()
 
     items = []
     for message in messages:
@@ -52,14 +50,9 @@ def produce_to_kafka(messages):
 
     producer.produce_messages(items)
 
-    finish_time = timeit.default_timer()
-    logging.info("Time taken to produce %s messages: %s", len(messages), finish_time - start_time)
-
 
 @run_async
 def fetch_submissions(time_since, **kwargs):
-    start_time = timeit.default_timer()
-
     params = {
         **DEFAULT_REQUEST_PARAMS,
         TIME_SINCE: time_since+1,
@@ -105,14 +98,9 @@ def fetch_submissions(time_since, **kwargs):
 
     update_last_fetched_content_created_at_utc(last_utc_time, "submission")
 
-    finish_time = timeit.default_timer()
-    logging.info("Time taken to process %s submissions: %s", len(data), finish_time - start_time)
-
 
 @run_async
 def fetch_comments(time_since, **kwargs):
-    start_time = timeit.default_timer()
-
     params = {
         **DEFAULT_REQUEST_PARAMS,
         TIME_SINCE: time_since+1,
@@ -154,9 +142,6 @@ def fetch_comments(time_since, **kwargs):
         last_utc_time = data[-1].get("created_utc", time_since)
 
     update_last_fetched_content_created_at_utc(last_utc_time, "comment")
-
-    finish_time = timeit.default_timer()
-    logging.info("Time taken to process %s comments: %s", len(data), finish_time - start_time)
 
 
 is_file_locked = False
