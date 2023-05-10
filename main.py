@@ -2,7 +2,9 @@ import google.cloud.logging
 import logging
 import sys
 
-from src.preprocessor.preprocessor import main as preprocessor
+from src.classifier.main import main as classifier
+from src.preprocessor.main import main as preprocessor
+
 
 client = google.cloud.logging.Client()
 client.setup_logging()
@@ -14,6 +16,7 @@ def main(command):
 
     function_map = {
         "preprocess": preprocessor,
+        "classify": classifier,
     }
 
     function = function_map.get(command, lambda: None)
