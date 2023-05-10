@@ -5,7 +5,7 @@ from typing import Dict
 
 from src.kafka.consumer import KafkaConsumer
 from src.kafka.producer import KafkaProducer
-from src.utils.Singleton import SingletonMeta
+from src.utils.singleton import SingletonMeta
 
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "preprocessed"
