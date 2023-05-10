@@ -85,7 +85,7 @@ def fetch_submissions(time_since, **kwargs):
                 body=submission.get("selftext"),
             ),
             "author": submission.get("author"),
-            "link": f'{REDDIT_BASE_URL}{submission.get("permalink")}',
+            "link": f'{REDDIT_BASE_URL}{submission.get("permalink", "/")}',
             "created_at": submission.get("utc_datetime_str"),
             "social_media": SocialMediaEnum.REDDIT,
             "type": SocialMediaPostEnum.REDDIT_SUBMISSION,
