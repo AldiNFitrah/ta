@@ -51,7 +51,7 @@ class KafkaProducer:
     def produce_messages(
         self,
         items: List[Tuple[object, object]],
-        callback_function: Optional[Callable[[str, str], None]] = None
+        callback_function: Optional[Callable[[str, str], None]] = None,
     ):
         logging.debug(f"Produce messages: %s", items)
 
@@ -78,6 +78,14 @@ class KafkaProducer:
 
         except Exception as e:
             logging.error(e)
+
+    def produce_message(
+        self,
+        key: object,
+        value: object,
+        callback_function: Optional[Callable[[str, str], None]] = None,
+    ):
+        self.produce_messages(items=[(key, value)], callback_function=callback_function)
 
     def log_on_kafka_message_delivery(self, error: Optional[str], message: str):
         if error is not None:
