@@ -1,0 +1,16 @@
+[Unit]
+Description=Apache Kafka Server
+Documentation=http://kafka.apache.org/documentation.html
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+ExecStart=/opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/kraft/server.properties
+ExecStop=/opt/kafka/bin/kafka-server-stop.sh
+Restart=on-abnormal
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
