@@ -1,10 +1,15 @@
+import json
 import logging
 import os
+import pytz
 
 import psycopg2
 
 from datetime import datetime
 from dotenv import load_dotenv
+from typing import Dict
+
+from src.kafka.consumer import KafkaConsumer
 
 
 load_dotenv()
@@ -71,7 +76,7 @@ class PostgreSQLMaterializer:
             logging.debug("Disconnected from PostgreSQL!")
 
     def insert_data(self, table_name, column_names, data):
-        if self.connection.closed:
+        if not self.connection or self.connection.closed:
             logging.warn("Connection is closed. Opening a new connection...")
             self.connect()
 
@@ -95,19 +100,20 @@ class PostgreSQLMaterializer:
             self.disconnect()
 
     def on_message(self, key: str, message: Dict):
-        if message.get("extra") is None:
-            message[extra] = {}
+        data = {"extras": message.get("extras", {})}
+        message.pop("extras")
 
         # Insert unmapped field_name to extras
         for field_name, value in message.items():
             if field_name in self.column_names:
+                data[field_name] = value
                 continue
 
-            message[extra][field_name] = value
-            message.pop(field_name)
+            data["extras"][field_name] = value
 
-        message["injected_to_db_at"] = datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
-        self.insert_data(self.table_name, message.keys(), message.values())
+        data["extras"] = json.dumps(data["extras"])
+        data["injected_to_db_at"] = datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+        self.insert_data(self.table_name, data.keys(), [list(data.values())])
 
     def on_error(self, error: str):
         logging.error(error)
