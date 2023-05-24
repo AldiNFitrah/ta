@@ -10,10 +10,10 @@ from src.utils.singleton import SingletonMeta
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "preprocessed"
 TOPIC_NAME_TARGET_PUBLISH = "result"
-GROUP_ID = "classifier-1"
+GROUP_ID = "analyzer-1"
 
 
-class Classifier(metaclass=SingletonMeta):
+class Analyzer(metaclass=SingletonMeta):
     def __init__(self):
         self.init_producer_consumer()
 

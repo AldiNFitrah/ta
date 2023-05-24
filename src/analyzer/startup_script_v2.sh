@@ -18,4 +18,4 @@ sudo git pull origin main
 pip3 install -r requirements.txt
 
 # Start application
-nohup python3 -m src.classifier.main
+nohup python3 -m src.analyzer.main
