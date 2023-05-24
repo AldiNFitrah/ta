@@ -8,10 +8,12 @@ sudo apt-get install -y python3-pip python3 git
 # Clone repository
 sudo mkdir /opt/ta
 cd /opt/ta
+sudo chown -R $USER:$USER ./
+
+sudo git config --system --add safe.directory '*'
 sudo git clone https://github.com/AldiNFitrah/ta.git .
 sudo git pull origin main
 
-sudo chown -R $USER:$USER ./
 
 # Install requirements
 pip3 install -r requirements.txt
