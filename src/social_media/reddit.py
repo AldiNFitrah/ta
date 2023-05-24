@@ -42,7 +42,6 @@ def generate_message_key(key):
 
 @run_async
 def produce_to_kafka(messages):
-
     items = []
     for message in messages:
         key = generate_message_key(message.get("text"))
