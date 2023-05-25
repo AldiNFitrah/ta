@@ -55,7 +55,6 @@ packaging==23.1
 pipreqs==0.4.13
 proto-plus==1.22.2
 protobuf==4.22.4
-psycopg2==2.9.6
 psycopg2-binary==2.9.6
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
