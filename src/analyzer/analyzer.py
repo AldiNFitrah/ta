@@ -1,8 +1,6 @@
 import joblib
 import logging
 
-import sklearn
-
 from random import random
 from typing import Dict
 
