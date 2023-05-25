@@ -1,4 +1,7 @@
+import joblib
 import logging
+
+import sklearn
 
 from random import random
 from typing import Dict
@@ -16,6 +19,7 @@ GROUP_ID = "analyzer-1"
 class Analyzer(metaclass=SingletonMeta):
     def __init__(self):
         self.init_producer_consumer()
+        self.init_model()
 
     def init_producer_consumer(self):
         self.producer = KafkaProducer(topic_name=TOPIC_NAME_TARGET_PUBLISH)
@@ -25,8 +29,16 @@ class Analyzer(metaclass=SingletonMeta):
             extra_config={},
         )
 
-    def classify(self, text: str) -> float:
-        return random() * 100
+    def init_model(self):
+        self.model = joblib.load('./src/analyzer/model.joblib') 
+        self.tfidf = joblib.load('./src/analyzer/tf_idf.joblib')
+
+    def predict_text(self, text):
+        texts = [text]
+        vectorized_texts = self.tfidf.transform(texts)
+        input_prediction = self.model.predict(vectorized_texts)
+
+        return bool(input_prediction[0])
 
     def start_consuming(self):
         self.consumer.consume(self.on_message, self.on_error)
@@ -34,7 +46,7 @@ class Analyzer(metaclass=SingletonMeta):
     def on_message(self, key: str, message: Dict):
         new_message = {
             **message,
-            "hate_speech_score": self.classify(message.get("preprocessed_text")),
+            "is_hate_speech": self.predict_text(message.get("preprocessed_text")),
         }
 
         self.producer.produce_message(key, new_message)
