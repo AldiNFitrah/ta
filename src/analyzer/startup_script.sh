@@ -14,7 +14,7 @@ cd /opt/ta-main
 sudo chown -R $USER:$USER ./
 
 # Install requirements
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt --no-cache-dir --no-warn-script-location
 
 # Start application
 nohup python3 main.py classify
