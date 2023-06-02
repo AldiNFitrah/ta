@@ -21,7 +21,7 @@ if not BOOTSTRAP_SERVER:
 DEFAULT_CONFIG = {
     'bootstrap.servers': BOOTSTRAP_SERVER,
     'default.topic.config': {
-        'auto.offset.reset': 'earliest', # if there's no initial offset, use earliest
+        'auto.offset.reset': 'latest', # if there's no initial offset, use latest
     },
 }
 
