@@ -31,10 +31,14 @@ class KafkaProducer:
         topic_name: str,
         key_serializer: Optional[Callable[[object], bytes]] = None,
         value_serializer: Optional[Callable[[object], bytes]] = None,
+        extra_config: Optional[Dict] = None,
     ):
         logging.debug("Create producer")
 
-        self.producer = Producer(DEFAULT_CONFIG)
+        if extra_config is None:
+            extra_config = {}
+
+        self.producer = Producer({**DEFAULT_CONFIG, **extra_config})
         self.topic_name = topic_name
 
         self.key_serializer = key_serializer
