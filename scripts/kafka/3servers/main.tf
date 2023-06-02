@@ -2,23 +2,20 @@
 # For information about validating this Terraform code, see https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/google-cloud-platform-build#format-and-validate-the-configuration
 
 resource "google_compute_address" "kafka-controller" {
-  project = "sonic-totem-383508"
   count = 3
   name  = "kafka-controller-${count.index + 1}"
-  region = "us-central1"
 }
 
 resource "google_compute_instance" "kafka-kraft-3servers-v1" {
-  project = "sonic-totem-383508"
   count = 3
 
   boot_disk {
-    auto_delete = true
+    auto_delete = false
     device_name = "kafka-kraft-3servers-v1-${count.index + 1}"
 
     initialize_params {
       image = "projects/debian-cloud/global/images/debian-11-bullseye-v20230509"
-      size  = 10
+      size  = 70
       type  = "pd-balanced"
     }
   }
@@ -27,7 +24,7 @@ resource "google_compute_instance" "kafka-kraft-3servers-v1" {
     ec-src = "vm_add-tf"
   }
 
-  machine_type = "n1-standard-1"
+  machine_type = "e2-standard-2"
 
   metadata = {
     KAFKA_CLUSTER_ID = "7Uu4ZfOySeKnsA28hjECaQ"
@@ -42,11 +39,11 @@ resource "google_compute_instance" "kafka-kraft-3servers-v1" {
       nat_ip       = google_compute_address.kafka-controller[count.index].address
     }
 
-    subnetwork = "projects/sonic-totem-383508/regions/us-central1/subnetworks/default"
+    subnetwork = "projects/thesis-387607/regions/us-central1/subnetworks/default"
   }
 
   service_account {
-    email  = "976896726169-compute@developer.gserviceaccount.com"
+    email  = "472319217023-compute@developer.gserviceaccount.com"
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
