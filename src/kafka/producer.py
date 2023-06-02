@@ -6,6 +6,7 @@ from confluent_kafka import Producer
 from collections.abc import Callable
 from datetime import datetime
 from dotenv import load_dotenv
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
