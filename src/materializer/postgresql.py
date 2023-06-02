@@ -16,12 +16,12 @@ load_dotenv()
 
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "result"
-GROUP_ID = "result-materializer-1"
+GROUP_ID = "local"
 
 
 class PostgreSQLMaterializer:
     def __init__(self):
-        self.host =os.getenv("DB_HOST")
+        self.host = os.getenv("DB_HOST")
         self.database = os.getenv("DB_NAME")
         self.user = os.getenv("DB_USER")
         self.password = os.getenv("DB_PASSWORD")
@@ -37,7 +37,6 @@ class PostgreSQLMaterializer:
             "type",
             "text",
             "preprocessed_text",
-            "hate_speech_score",
             "extras",
             "created_at",
             "injected_to_raw_at",
