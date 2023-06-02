@@ -63,7 +63,7 @@ class KafkaProducer:
 
                 self.producer.produce(
                     topic=self.topic_name,
-                    value=self.value_serializer(value),
+                    value=self.value_serializer(item),
                     on_delivery=on_delivery_function,
                 )
 
