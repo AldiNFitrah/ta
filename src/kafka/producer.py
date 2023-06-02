@@ -31,7 +31,6 @@ class KafkaProducer:
     def __init__(
         self,
         topic_name: str,
-        key_serializer: Optional[Callable[[object], bytes]] = None,
         value_serializer: Optional[Callable[[object], bytes]] = None,
         extra_config: Optional[Dict] = None,
     ):
@@ -43,12 +42,7 @@ class KafkaProducer:
         self.producer = Producer({**DEFAULT_CONFIG, **extra_config})
         self.topic_name = topic_name
 
-        self.key_serializer = key_serializer
         self.value_serializer = value_serializer
-
-        if self.key_serializer is None:
-            self.key_serializer = serialize_json
-
         if self.value_serializer is None:
             self.value_serializer = serialize_json
 
@@ -56,7 +50,7 @@ class KafkaProducer:
 
     def produce_messages(
         self,
-        items: List[Tuple[object, object]],
+        items: List[object],
         callback_function: Optional[Callable[[str, str], None]] = None,
     ):
         logging.debug(f"Produce messages: %s", items)
@@ -65,15 +59,10 @@ class KafkaProducer:
 
         try:
             for item in items:
-                key = item[0]
-                value = {
-                    **item[1],
-                    f"injected_to_{self.topic_name}_at": get_current_utc_datetime(),
-                }
+                item[f"injected_to_{self.topic_name}_at"] = get_current_utc_datetime()
 
                 self.producer.produce(
                     topic=self.topic_name,
-                    key=self.key_serializer(key),
                     value=self.value_serializer(value),
                     on_delivery=on_delivery_function,
                 )
@@ -91,7 +80,7 @@ class KafkaProducer:
         value: object,
         callback_function: Optional[Callable[[str, str], None]] = None,
     ):
-        self.produce_messages(items=[(key, value)], callback_function=callback_function)
+        self.produce_messages(items=[value], callback_function=callback_function)
 
     def log_on_kafka_message_delivery(self, error: Optional[str], message: str):
         if error is not None:

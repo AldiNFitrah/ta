@@ -35,7 +35,6 @@ class KafkaConsumer:
         topic_name: str,
         group_id: str,
         extra_config: Dict,
-        key_deserializer: Optional[Callable[[object], bytes]] = None,
         value_deserializer: Optional[Callable[[object], bytes]] = None,
     ):
         self.consumer = Consumer({
@@ -45,17 +44,11 @@ class KafkaConsumer:
         })
         self.consumer.subscribe([topic_name])
 
-        self.key_deserializer = key_deserializer
         self.value_deserializer = value_deserializer
-
-        if self.key_deserializer is None:
-            self.key_deserializer = deserialize_json
-
         if self.value_deserializer is None:
             self.value_deserializer = deserialize_json
 
-
-    def consume(self, on_message: Callable[[str, str], None], on_error: Callable[[str], None]):
+    def consume(self, on_message: Callable[[object], None], on_error: Callable[[str], None]):
         try:
             while True:
                 msg: Message = self.consumer.poll(1.0)
@@ -68,7 +61,6 @@ class KafkaConsumer:
                     continue
 
                 on_message(
-                    self.key_deserializer(msg.key()),
                     self.value_deserializer(msg.value()),
                 )
 

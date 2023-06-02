@@ -36,9 +36,9 @@ class Multiplier:
     def start_consuming(self):
         self.consumer.consume(self.on_message, self.on_error)
 
-    def on_message(self, key: str, message: Dict):
+    def on_message(self, message: Dict):
         self.increase_counter()
-        self.producer.produce_message(key, message)
+        self.producer.produce_message(message)
 
     def on_error(self, error: str):
         logging.error(error)

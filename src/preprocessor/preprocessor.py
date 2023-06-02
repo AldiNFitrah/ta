@@ -77,13 +77,10 @@ class Preprocessor(metaclass=SingletonMeta):
     def start_consuming(self):
         self.consumer.consume(self.on_message, self.on_error)
 
-    def on_message(self, key: str, message: Dict):
-        new_message = {
-            **message,
-            "preprocessed_text": self.preprocess(message.get("text")),
-        }
+    def on_message(self, message: Dict):
+        message ["preprocessed_text"] = self.preprocess(message.get("text"))
 
-        self.producer.produce_message(key, new_message)
+        self.producer.produce_message(new_message)
 
     def on_error(self, error: str):
         logging.error(error)

@@ -24,12 +24,7 @@ producer = KafkaProducer(topic_name=TOPIC_NAME_TARGET_PUBLISH)
 
 @run_async
 def produce_to_kafka(messages):
-    items = []
-    for message in messages:
-        key = generate_message_key(message.get("text"))
-        items.append((key, message))
-
-    producer.produce_messages(items)
+    producer.produce_messages(messages)
 
 
 def fetch_tweets():

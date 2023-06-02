@@ -99,7 +99,7 @@ class PostgreSQLMaterializer:
         finally:
             self.disconnect()
 
-    def on_message(self, key: str, message: Dict):
+    def on_message(self, message: Dict):
         data = {"extras": message.get("extras", {})}
         message.pop("extras")
 

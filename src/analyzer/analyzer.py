@@ -41,13 +41,10 @@ class Analyzer(metaclass=SingletonMeta):
     def start_consuming(self):
         self.consumer.consume(self.on_message, self.on_error)
 
-    def on_message(self, key: str, message: Dict):
-        new_message = {
-            **message,
-            "is_hate_speech": self.predict_text(message.get("preprocessed_text")),
-        }
+    def on_message(self, message: Dict):
+        message["is_hate_speech"] = self.predict_text(message.get("preprocessed_text"))
 
-        self.producer.produce_message(key, new_message)
+        self.producer.produce_message(new_message)
 
     def on_error(self, error: str):
         logging.error(error)
