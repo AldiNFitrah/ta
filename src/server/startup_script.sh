@@ -15,7 +15,7 @@ sudo git clone https://github.com/AldiNFitrah/ta.git .
 sudo git pull origin main
 
 # Install requirements
-pip3 install -r requirements.txt --no-cache-dir --no-warn-script-location
+pip3 install -r requirements.txt --system --no-cache-dir --no-warn-script-location
 
 # Start application
 nohup python3 -m uvicorn src.server.main:app --host 0.0.0.0 &

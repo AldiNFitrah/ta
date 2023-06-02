@@ -3,18 +3,20 @@
 # Install dependencies
 sudo rm -rf /var/lib/man-db/auto-update
 sudo apt-get -qq update
-sudo apt-get install -y unzip python3-pip python3
+sudo apt-get install -y python3-pip python3 git
 
 # Clone repository
-sudo curl -L -o app.zip https://github.com/AldiNFitrah/ta/archive/refs/heads/main.zip
-sudo unzip app -d /opt
-sudo rm -rf app.zip
-
-cd /opt/ta-main
+sudo mkdir /opt/ta
+cd /opt/ta
 sudo chown -R $USER:$USER ./
 
+sudo git config --system --add safe.directory '*'
+sudo git clone https://github.com/AldiNFitrah/ta.git .
+sudo git pull origin main
+
+
 # Install requirements
-pip3 install -r requirements.txt --no-cache-dir --no-warn-script-location
+pip3 install -r requirements.txt --system --no-cache-dir --no-warn-script-location
 
 # Start application
-nohup python3 main.py preprocess
+nohup python3 -m src.preprocessor.main
