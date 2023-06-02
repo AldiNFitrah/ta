@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from typing import Dict
 
 from src.kafka.consumer import KafkaConsumer
+from src.utils import get_current_utc_datetime
 
 
 load_dotenv()
@@ -111,7 +112,7 @@ class PostgreSQLMaterializer:
             data["extras"][field_name] = value
 
         data["extras"] = json.dumps(data["extras"])
-        data["injected_to_db_at"] = datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+        data["injected_to_db_at"] = get_current_utc_datetime()
         self.insert_data(self.table_name, data.keys(), [list(data.values())])
 
     def on_error(self, error: str):

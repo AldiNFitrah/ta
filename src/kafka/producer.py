@@ -12,6 +12,7 @@ from typing import Optional
 from typing import Tuple
 
 from src.kafka.commons import serialize_json
+from src.utils import get_current_utc_datetime
 
 load_dotenv()
 
@@ -67,7 +68,7 @@ class KafkaProducer:
                 key = item[0]
                 value = {
                     **item[1],
-                    f"injected_to_{self.topic_name}_at": datetime.now(pytz.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
+                    f"injected_to_{self.topic_name}_at": get_current_utc_datetime(),
                 }
 
                 self.producer.produce(
