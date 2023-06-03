@@ -48,21 +48,27 @@ class KafkaConsumer:
         if self.value_deserializer is None:
             self.value_deserializer = deserialize_json
 
-    def consume(self, on_message: Callable[[object], None], on_error: Callable[[str], None]):
+    def consume(
+        self,
+        on_message: Callable[[object], None],
+        on_error: Callable[[str], None],
+        on_wait: Callable[[], None] = None,
+    ):
         try:
             while True:
                 msg: Message = self.consumer.poll(1.0)
 
                 if msg is None:
+                    if on_wait is not None:
+                        on_wait()
+
                     continue
 
                 if msg.error():
                     on_error(msg.error())
                     continue
 
-                on_message(
-                    self.value_deserializer(msg.value()),
-                )
+                on_message(self.value_deserializer(msg.value()))
 
         except Exception as e:
             logging.error("Error: %s", e)
