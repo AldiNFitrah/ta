@@ -5,7 +5,7 @@ from typing import Dict
 
 from src.kafka.consumer import KafkaConsumer
 from src.kafka.producer import KafkaProducer
-from src.utils import run_async
+from src.utils import threaded
 
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "raw"
@@ -29,10 +29,14 @@ class Multiplier:
         self.consumer = KafkaConsumer(
             topic_name=TOPIC_NAME_TARGET_SUBSCRIBE,
             group_id=self.group_id,
-            extra_config={},
+            extra_config={
+                'default.topic.config': {
+                    'auto.offset.reset': 'earliest',
+                },
+            },
         )
 
-    @run_async
+    @threaded
     def start_consuming(self):
         self.consumer.consume(self.on_message, self.on_error)
 

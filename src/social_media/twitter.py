@@ -13,18 +13,13 @@ from src.kafka.producer import KafkaProducer
 from src.social_media.commons import generate_message_key
 from src.social_media.enums import SocialMediaEnum
 from src.social_media.enums import SocialMediaPostEnum
-from src.utils import run_async
+from src.utils import threaded
 
 
 
 TOPIC_NAME_TARGET_PUBLISH = "raw"
 
 producer = KafkaProducer(topic_name=TOPIC_NAME_TARGET_PUBLISH)
-
-
-@run_async
-def produce_to_kafka(messages):
-    producer.produce_messages(messages)
 
 
 def fetch_tweets():
@@ -34,8 +29,6 @@ def fetch_tweets():
         "-is:retweet",
         f"since:{ONE_MINUTE_AGO.strftime('%Y-%m-%dT%H:%M:%SZ')}",
     ]
-
-    messages = []
 
     query = " ".join(TWEET_SEARCH_QUERIES)
 
@@ -47,10 +40,7 @@ def fetch_tweets():
         if i % 100 == 0:
             logging.info(f"Processing {i} tweets")
 
-            produce_to_kafka(messages)
-            messages = []
-
-        messages.append({
+        message = {
             "text": tweet.renderedContent,
             "author": tweet.username,
             "link": tweet.url,
@@ -58,12 +48,12 @@ def fetch_tweets():
             "social_media": SocialMediaEnum.TWITTER,
             "type": SocialMediaPostEnum.TWITTER_TWEET,
             "extras": {},
-        })
+        }
 
-    produce_to_kafka(messages)
+        producer.produce_message(message)
 
 
-@run_async
+@threaded
 def main():
     fetch_tweets()
 

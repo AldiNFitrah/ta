@@ -80,7 +80,7 @@ class Preprocessor(metaclass=SingletonMeta):
     def on_message(self, message: Dict):
         message ["preprocessed_text"] = self.preprocess(message.get("text"))
 
-        self.producer.produce_message(new_message)
+        self.producer.produce_message(message)
 
     def on_error(self, error: str):
         logging.error(error)

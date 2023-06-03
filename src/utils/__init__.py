@@ -5,7 +5,7 @@ from datetime import datetime
 from functools import wraps
 
 
-def run_async(func):
+def threaded(func):
     @wraps(func)
     def async_func(*args, **kwargs):
         thread = threading.Thread(target=func, args=args, kwargs=kwargs)
