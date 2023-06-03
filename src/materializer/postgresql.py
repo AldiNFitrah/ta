@@ -1,20 +1,16 @@
 import json
 import logging
 import os
-import pytz
+import psycopg2
 import time
 
-import psycopg2
+from dotenv import load_dotenv
 from psycopg2 import pool
 from psycopg2.extras import execute_batch
-
-from datetime import datetime
-from dotenv import load_dotenv
 from typing import Dict
 
 from src.kafka.consumer import KafkaConsumer
 from src.utils import get_current_utc_datetime
-from src.utils import threaded
 
 load_dotenv()
 
