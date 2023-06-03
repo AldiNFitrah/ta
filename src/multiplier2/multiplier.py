@@ -1,11 +1,15 @@
 import logging
 import multiprocessing
+import os
 
 from typing import Dict
+from dotenv import load_dotenv
 
 from src.kafka.consumer import KafkaConsumer
 from src.kafka.producer import KafkaProducer
 from src.utils import threaded
+
+load_dotenv()
 
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "raw"
@@ -17,6 +21,7 @@ class Multiplier:
         self.group_id = group_id
         self.init_producer_consumer()
         self.counter = multiprocessing.Value('i', 0)
+        self.attempt_name = os.getenv("MULT2_ATTEMPT_NAME")
 
     def increase_counter(self):
         self.counter.value += 1
@@ -47,7 +52,7 @@ class Multiplier:
     def on_message(self, message: Dict):
         self.increase_counter()
         message.setdefault("extras", {})
-        message["extras"]["attempt"] = "tw-3"
+        message["extras"]["attempt"] = self.attempt_name
         self.producer.produce_message(message)
 
     def on_error(self, error: str):
