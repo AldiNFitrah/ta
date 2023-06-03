@@ -20,7 +20,7 @@ load_dotenv()
 
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "result"
-GROUP_ID = "local"
+GROUP_ID = "materializer"
 BATCH_SIZE = 100
 LINGER_TIME = 2 # 2 seconds
 

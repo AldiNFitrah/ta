@@ -11,7 +11,7 @@ from src.utils.singleton import SingletonMeta
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "preprocessed"
 TOPIC_NAME_TARGET_PUBLISH = "result"
-GROUP_ID = "analyzer-1"
+GROUP_ID = "analyzer"
 
 
 class Analyzer(metaclass=SingletonMeta):

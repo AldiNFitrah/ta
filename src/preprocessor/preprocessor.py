@@ -11,7 +11,7 @@ from src.utils.singleton import SingletonMeta
 
 TOPIC_NAME_TARGET_SUBSCRIBE = "raw"
 TOPIC_NAME_TARGET_PUBLISH = "preprocessed"
-GROUP_ID = "preprocessor-1"
+GROUP_ID = "preprocessor"
 
 
 class Preprocessor(metaclass=SingletonMeta):
