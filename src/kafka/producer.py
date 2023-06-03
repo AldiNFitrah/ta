@@ -48,39 +48,20 @@ class KafkaProducer:
 
         logging.debug("Finish creating producer")
 
-    def produce_messages(
-        self,
-        items: List[object],
-        callback_function: Optional[Callable[[str, str], None]] = None,
-    ):
-        logging.debug(f"Produce messages: %s", items)
-
-        on_delivery_function = self.get_on_delivery_function(callback_function)
-
-        try:
-            for item in items:
-                item[f"injected_to_{self.topic_name}_at"] = get_current_utc_datetime()
-
-                self.producer.produce(
-                    topic=self.topic_name,
-                    value=self.value_serializer(item),
-                    on_delivery=on_delivery_function,
-                )
-
-            self.producer.flush()
-
-            logging.debug(f"Finish producing messages")
-
-        except Exception as e:
-            logging.error(e)
-
     def produce_message(
         self,
-        key: object,
         value: object,
         callback_function: Optional[Callable[[str, str], None]] = None,
     ):
-        self.produce_messages(items=[value], callback_function=callback_function)
+        value[f"injected_to_{self.topic_name}_at"] = get_current_utc_datetime()
+
+        self.producer.produce(
+            topic=self.topic_name,
+            value=self.value_serializer(value),
+            on_delivery=self.get_on_delivery_function(callback_function),
+        )
+
+        self.producer.poll(0)
 
     def log_on_kafka_message_delivery(self, error: Optional[str], message: str):
         if error is not None:
