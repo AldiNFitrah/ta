@@ -33,14 +33,14 @@ class Multiplier:
         self.producer = KafkaProducer(
             topic_name=TOPIC_NAME_TARGET_PUBLISH,
             extra_config={
-                'bootstrap.servers': '34.170.144.53:9092',
+                'bootstrap.servers': '34.31.228.151:9092',
             },
         )
         self.consumer = KafkaConsumer(
             topic_name=TOPIC_NAME_TARGET_SUBSCRIBE,
             group_id=self.group_id,
             extra_config={
-                'bootstrap.servers': '34.170.144.53:9092',
+                'bootstrap.servers': '34.31.228.151:9092',
                 'default.topic.config': {'auto.offset.reset': 'earliest'},
             },
         )
