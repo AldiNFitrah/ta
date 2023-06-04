@@ -21,7 +21,7 @@ class Multiplier:
         self.group_id = group_id
         self.init_producer_consumer()
         self.counter = multiprocessing.Value('i', 0)
-        self.attempt_name = os.getenv("MULT2_ATTEMPT_NAME")
+        self.attempt_name = os.getenv("MULT_ATTEMPT_NAME")
 
     def increase_counter(self):
         self.counter.value += 1
