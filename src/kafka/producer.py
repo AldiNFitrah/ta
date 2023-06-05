@@ -23,6 +23,7 @@ if not BOOTSTRAP_SERVER:
 
 DEFAULT_CONFIG = {
     'bootstrap.servers': BOOTSTRAP_SERVER,
+    'compression.type': 'snappy',
 }
 
 logging.info(f"Producer config: {DEFAULT_CONFIG}")
