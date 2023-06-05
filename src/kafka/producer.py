@@ -24,7 +24,7 @@ if not BOOTSTRAP_SERVER:
 DEFAULT_CONFIG = {
     'bootstrap.servers': BOOTSTRAP_SERVER,
     'compression.type': 'snappy',
-    'linger.ms': 5,
+    'linger.ms': 100,
     'batch.size': 32768,
 }
 
