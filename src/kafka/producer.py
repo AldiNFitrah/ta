@@ -25,7 +25,7 @@ DEFAULT_CONFIG = {
     'bootstrap.servers': BOOTSTRAP_SERVER,
     'compression.type': 'lz4',
     'linger.ms': 100,
-    'batch.size': 32768,
+    'batch.size': 131072, # 128 KB
 }
 
 logging.info(f"Producer config: {DEFAULT_CONFIG}")
