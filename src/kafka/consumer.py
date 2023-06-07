@@ -20,7 +20,7 @@ if not BOOTSTRAP_SERVER:
 
 DEFAULT_CONFIG = {
     'bootstrap.servers': BOOTSTRAP_SERVER,
-    'fetch.min.bytes': 131072, # 32 KB
+    # 'fetch.min.bytes': 131072, # 32 KB
     'default.topic.config': {
         'auto.offset.reset': 'latest', # if there's no initial offset, use latest
     },
